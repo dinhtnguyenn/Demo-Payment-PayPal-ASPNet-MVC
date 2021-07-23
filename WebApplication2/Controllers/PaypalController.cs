@@ -63,7 +63,12 @@ namespace WebApplication2.Controllers
 
         private Payment CreatePayment(APIContext apiContext, string redirectUrl)
         {
-            var itemList = new ItemList() { items = new List<Item>() };
+            var itemList = new ItemList() { items = new List<Item>(), shipping_address = new ShippingAddress() { recipient_name = "Nguyễn Văn Tèo", country_code="VN", city="Hồ Chí Minh", line1="72 Nguyễn Hữu Cảnh, F22, Q.Bình Thạnh", postal_code="700000"} };
+            //recipient_name: tên người đặt hàng
+            //country_code: code quốc gia, tham khảo thêm tại: https://developer.paypal.com/docs/api/reference/country-codes/
+            //city: thành phố shipping
+            //line1: địa chỉ giao hàng
+            //postal_code: code postal (ví dụ code ở Việt Nam: https://www.google.com/search?q=postal+code+vietnam)
             itemList.items.Add(new Item()
             {
                 //Thông tin đơn hàng
