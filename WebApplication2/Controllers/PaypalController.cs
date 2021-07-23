@@ -1,4 +1,4 @@
-﻿using PayPal.Api;
+using PayPal.Api;
 using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
@@ -28,8 +28,10 @@ namespace WebApplication2.Controllers
                     string baseURI = Request.Url.Scheme + "://" + Request.Url.Authority
                     +
                     "/Paypal/PaymentWithPayPal?";
+
+                    string failedURI = Request.Url.Scheme + "://" + Request.Url.Authority + "/Paypal/FailureView";
                     var guid = Convert.ToString((new Random()).Next(100000));
-                    var createdPayment = this.CreatePayment(apiContext, baseURI + "guid=" + guid);
+                    var createdPayment = this.CreatePayment(apiContext, baseURI + "guid=" + guid, failedURI);
                     var links = createdPayment.links.GetEnumerator();
                     string paypalRedirectUrl = null;
                     while (links.MoveNext())
@@ -61,14 +63,9 @@ namespace WebApplication2.Controllers
             return View("SuccessView");
         }
 
-        private Payment CreatePayment(APIContext apiContext, string redirectUrl)
+        private Payment CreatePayment(APIContext apiContext, string redirectUrl, string failedUrl)
         {
             var itemList = new ItemList() { items = new List<Item>(), shipping_address = new ShippingAddress() { recipient_name = "Nguyễn Văn Tèo", country_code="VN", city="Hồ Chí Minh", line1="72 Nguyễn Hữu Cảnh, F22, Q.Bình Thạnh", postal_code="700000"} };
-            //recipient_name: tên người đặt hàng
-            //country_code: code quốc gia, tham khảo thêm tại: https://developer.paypal.com/docs/api/reference/country-codes/
-            //city: thành phố shipping
-            //line1: địa chỉ giao hàng
-            //postal_code: code postal (ví dụ code ở Việt Nam: https://www.google.com/search?q=postal+code+vietnam)
             itemList.items.Add(new Item()
             {
                 //Thông tin đơn hàng
@@ -81,7 +78,7 @@ namespace WebApplication2.Controllers
             var payer = new Payer() { payment_method = "paypal" };
             var redirUrls = new RedirectUrls()
             {
-                cancel_url = redirectUrl,
+                cancel_url = failedUrl,
                 return_url = redirectUrl
             };
 
@@ -122,6 +119,16 @@ namespace WebApplication2.Controllers
             var paymentExecution = new PaymentExecution() { payer_id = payerId };
             this.payment = new Payment() { id = paymentId };
             return this.payment.Execute(apiContext, paymentExecution);
+        }
+
+        public ActionResult SuccessView()
+        {
+            return View();
+        }
+
+        public ActionResult FailureView()
+        {
+            return View();
         }
 
     }
