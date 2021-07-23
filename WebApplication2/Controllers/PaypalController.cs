@@ -29,8 +29,10 @@ namespace WebApplication2.Controllers
                     +
                     "/Paypal/PaymentWithPayPal?";
 
+                    //link trả về khi người dùng hủy thanh toán
                     string failedURI = Request.Url.Scheme + "://" + Request.Url.Authority + "/Paypal/FailureView";
-                    var guid = Convert.ToString((new Random()).Next(100000));
+                   
+                   var guid = Convert.ToString((new Random()).Next(100000));
                     var createdPayment = this.CreatePayment(apiContext, baseURI + "guid=" + guid, failedURI);
                     var links = createdPayment.links.GetEnumerator();
                     string paypalRedirectUrl = null;
@@ -66,7 +68,13 @@ namespace WebApplication2.Controllers
         private Payment CreatePayment(APIContext apiContext, string redirectUrl, string failedUrl)
         {
             var itemList = new ItemList() { items = new List<Item>(), shipping_address = new ShippingAddress() { recipient_name = "Nguyễn Văn Tèo", country_code="VN", city="Hồ Chí Minh", line1="72 Nguyễn Hữu Cảnh, F22, Q.Bình Thạnh", postal_code="700000"} };
-            itemList.items.Add(new Item()
+            //recipient_name: tên người đặt hàng
+            //country_code: code quốc gia, tham khảo thêm tại: https://developer.paypal.com/docs/api/reference/country-codes/
+            //city: thành phố shipping
+            //line1: địa chỉ giao hàng
+            //postal_code: code postal (ví dụ code ở Việt Nam: https://www.google.com/search?q=postal+code+vietnam)
+           
+           itemList.items.Add(new Item()
             {
                 //Thông tin đơn hàng
                 name = "Item Name",
@@ -78,8 +86,8 @@ namespace WebApplication2.Controllers
             var payer = new Payer() { payment_method = "paypal" };
             var redirUrls = new RedirectUrls()
             {
-                cancel_url = failedUrl,
-                return_url = redirectUrl
+                cancel_url = failedUrl, //url cancel
+                return_url = redirectUrl //url return
             };
 
             var details = new Details()
